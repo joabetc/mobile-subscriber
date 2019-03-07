@@ -10,7 +10,7 @@ public interface MobileSubscriberRepository extends CrudRepository<MobileSubscri
 
   List<MobileSubscriber> findAll();
 
-  MobileSubscriber findByMsisdn(String string);
+  MobileSubscriber findByMsisdn(String msisdn);
 
   List<MobileSubscriber> findByCustomerIdOwner(Integer id);
 
