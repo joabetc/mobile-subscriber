@@ -71,6 +71,7 @@ public class MobileSubscriberRepositoryTest {
   
   @Test
   public void whenFindByCustomerIdUser_thenReturnMobileSubscriberList() {
+    
     List<MobileSubscriber> list = new ArrayList<MobileSubscriber>(2);
     MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
     list.add(mobileSubscriber);
@@ -86,6 +87,40 @@ public class MobileSubscriberRepositoryTest {
     List<MobileSubscriber> resultList = mobileSubscriberRepository.findByCustomerIdUser(1);
     
     assertThat(resultList).isNotEmpty().size().isEqualTo(2);
+  }
+  
+  @Test
+  public void whenInsertingNewMobileSubscriber_thenReturnMobileSubscriber() {
+    
+    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    
+    MobileSubscriber saved = mobileSubscriberRepository.save(mobileSubscriber);
+    
+    assertThat(saved).isNotNull();
+  }
+  
+  @Test
+  public void whenChangingMobilePlan_thenReturnMobilePlanChanged() {
+    
+    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    entityManager.persist(mobileSubscriber);
+    entityManager.flush();
+    
+    int result = mobileSubscriberRepository.setPlan("35699123456", ServiceType.MOBILE_POSTPAID);
+    
+    assertThat(result).isEqualTo(1);
+  }
+  
+  @Test
+  public void whenDeletingMobileNumber_thenReturnMobileNumberDeleted() {
+    
+    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    entityManager.persist(mobileSubscriber);
+    entityManager.flush();
+    
+    int result = mobileSubscriberRepository.deleteByMsisdn("35699123456");
+    
+    assertThat(result).isEqualTo(1);
   }
 
 }
