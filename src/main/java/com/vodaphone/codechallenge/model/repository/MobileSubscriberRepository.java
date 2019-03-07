@@ -9,4 +9,6 @@ import com.vodaphone.codechallenge.model.MobileSubscriber;
 public interface MobileSubscriberRepository extends JpaRepository<MobileSubscriber, Integer> {
 
   List<MobileSubscriber> findAll();
+
+  MobileSubscriber findByMsisdn(String string);
 }
