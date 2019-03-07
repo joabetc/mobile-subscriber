@@ -68,5 +68,24 @@ public class MobileSubscriberRepositoryTest {
     
     assertThat(resultList).isNotEmpty().size().isEqualTo(2);
   }
+  
+  @Test
+  public void whenFindByCustomerIdUser_thenReturnMobileSubscriberList() {
+    List<MobileSubscriber> list = new ArrayList<MobileSubscriber>(2);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    list.add(mobileSubscriber);
+    mobileSubscriber = new MobileSubscriber("35699123457", 1, 2, ServiceType.MOBILE_PREPAID);
+    list.add(mobileSubscriber);
+    mobileSubscriber = new MobileSubscriber("35699123458", 1, 1, ServiceType.MOBILE_PREPAID);
+    list.add(mobileSubscriber);
+    list.stream().forEach(mobSub -> {
+      entityManager.persist(mobSub);
+      entityManager.flush();
+    });
+    
+    List<MobileSubscriber> resultList = mobileSubscriberRepository.findByCustomerIdUser(1);
+    
+    assertThat(resultList).isNotEmpty().size().isEqualTo(2);
+  }
 
 }
