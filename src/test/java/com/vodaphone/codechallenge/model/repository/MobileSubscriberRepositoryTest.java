@@ -35,5 +35,17 @@ public class MobileSubscriberRepositoryTest {
     
     assertThat(resultList).isNotEmpty().contains(mobileSubscriber);
   }
+  
+  @Test
+  public void whenFindByNumber_thenReturnMobileSubscriber() {
+    
+    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    entityManager.persist(mobileSubscriber);
+    entityManager.flush();
+    
+    MobileSubscriber found = mobileSubscriberRepository.findByMsisdn("35699123456");
+    
+    assertThat(found.getMsisdn()).isEqualTo(found.getMsisdn());
+  }
 
 }
