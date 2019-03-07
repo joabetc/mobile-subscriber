@@ -11,4 +11,6 @@ public interface MobileSubscriberRepository extends JpaRepository<MobileSubscrib
   List<MobileSubscriber> findAll();
 
   MobileSubscriber findByMsisdn(String string);
+
+  List<MobileSubscriber> findByCustomerIdOwner(int i);
 }
