@@ -2,6 +2,7 @@ package com.vodaphone.codechallenge.model.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -46,6 +47,26 @@ public class MobileSubscriberRepositoryTest {
     MobileSubscriber found = mobileSubscriberRepository.findByMsisdn("35699123456");
     
     assertThat(found.getMsisdn()).isEqualTo(found.getMsisdn());
+  }
+  
+  @Test
+  public void whenFindByCustomerIdOwner_thenReturnMobileSubscriberList() {
+    
+    List<MobileSubscriber> list = new ArrayList<MobileSubscriber>(2);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    list.add(mobileSubscriber);
+    mobileSubscriber = new MobileSubscriber("35699123457", 2, 1, ServiceType.MOBILE_PREPAID);
+    list.add(mobileSubscriber);
+    mobileSubscriber = new MobileSubscriber("35699123458", 1, 1, ServiceType.MOBILE_PREPAID);
+    list.add(mobileSubscriber);
+    list.stream().forEach(mobSub -> {
+      entityManager.persist(mobSub);
+      entityManager.flush();
+    });
+    
+    List<MobileSubscriber> resultList = mobileSubscriberRepository.findByCustomerIdOwner(1);
+    
+    assertThat(resultList).isNotEmpty().size().isEqualTo(2);
   }
 
 }
