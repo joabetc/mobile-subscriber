@@ -17,20 +17,25 @@ public class MobileSubscriber {
   @Column(name = "Id")
   private Integer id;
   
+  @Column(nullable = false, unique = true)
   private String msisdn;
   
-  @Column(name = "customer_id_owner")
+  @Column(name = "customer_id_owner", nullable = false)
   private Integer customerIdOwner;
   
-  @Column(name = "customer_id_user")
+  @Column(name = "customer_id_user", nullable = false)
   private Integer customerIdUser;
   
   @Enumerated(EnumType.STRING)
-  @Column(name = "service_type")
+  @Column(name = "service_type", nullable = false)
   private ServiceType serviceType;
   
-  @Column(name = "service_start_date")
+  @Column(name = "service_start_date", nullable = false)
   private long serviceStartDate;
+  
+  public MobileSubscriber() {
+    super();
+  }
   
   public MobileSubscriber(String msisdn, Integer customerIdOwner, Integer customerIdUser, ServiceType serviceType) {
     super();
