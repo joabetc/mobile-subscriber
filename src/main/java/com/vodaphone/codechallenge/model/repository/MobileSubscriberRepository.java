@@ -22,7 +22,7 @@ public interface MobileSubscriberRepository extends CrudRepository<MobileSubscri
   List<MobileSubscriber> findByCustomerIdUser(Integer id);
 
   @Transactional
-  @Modifying
+  @Modifying(flushAutomatically = true, clearAutomatically = true)
   @Query("update MobileSubscriber mo set mo.serviceType = ?2 where mo.msisdn = ?1")
   int setPlan(String msisdn, ServiceType serviceType);
 

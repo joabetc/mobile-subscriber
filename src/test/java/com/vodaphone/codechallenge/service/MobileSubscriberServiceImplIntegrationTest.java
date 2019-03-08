@@ -2,6 +2,9 @@ package com.vodaphone.codechallenge.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,16 +43,70 @@ public class MobileSubscriberServiceImplIntegrationTest {
   @Before
   public void setUp() {
     MobileSubscriber mobileSubscriber = new MobileSubscriber(MOBILE_NUMBER_1, 1, 1, ServiceType.MOBILE_PREPAID);
+    List<MobileSubscriber> mobileSubscribers = new ArrayList<>();
+    mobileSubscribers.add(mobileSubscriber);
     
     Mockito.when(mobileSubscriberRepository.findByMsisdn(mobileSubscriber.getMsisdn()))
       .thenReturn(mobileSubscriber);
+    
+    Mockito.when(mobileSubscriberRepository.findAll())
+      .thenReturn(mobileSubscribers);
+    
+    Mockito.when(mobileSubscriberRepository.findByCustomerIdOwner(mobileSubscriber.getCustomerIdOwner()))
+      .thenReturn(mobileSubscribers);
+    
+    Mockito.when(mobileSubscriberRepository.findByCustomerIdUser(mobileSubscriber.getCustomerIdUser()))
+      .thenReturn(mobileSubscribers);
+    
+    Mockito.when(mobileSubscriberRepository.setPlan(mobileSubscriber.getMsisdn(), mobileSubscriber.getServiceType()))
+      .thenReturn(1);
+    
+    Mockito.when(mobileSubscriberRepository.deleteByMsisdn(mobileSubscriber.getMsisdn())).thenReturn(1);
   }
   
   @Test
-  public void whenValidNumber_ThenMobileSubscriberShouldBeFound() {
+  public void whenValidNumber_thenMobileSubscriberShouldBeFound() {
     
     MobileSubscriber found = mobileSubscriberService.getMobileSubscriberByNumber(MOBILE_NUMBER_1);
     
     assertThat(found.getMsisdn()).isEqualTo(MOBILE_NUMBER_1);
+  }
+  
+  @Test
+  public void whenFindAll_thenReturnMobileSubcriberList() {
+    
+    List<MobileSubscriber> listFound = mobileSubscriberService.getAllMobileSubscribers();
+    
+    assertThat(listFound).isNotEmpty().size().isEqualTo(1);
+  }
+  
+  @Test
+  public void whenValidCustomerIdOwner_thenReturnMobileSubscriberList() {
+    
+    List<MobileSubscriber> listFound = mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(1);
+    
+    assertThat(listFound).isNotEmpty().size().isEqualTo(1);
+  }
+  
+  @Test
+  public void whenValidCustomerIdUser_thenReturnMobileSubscriberList() {
+    
+    List<MobileSubscriber> listFound = mobileSubscriberService.getMobileSubscriberByCustomerIdUser(1);
+    
+    assertThat(listFound).isNotEmpty().size().isEqualTo(1);
+  }
+  
+  @Test
+  public void whenServicePrepaidIsChanged_thenReturnPospaid() {
+    int result = mobileSubscriberService.changeMobileSubscriberPlan(MOBILE_NUMBER_1);
+    
+    assertThat(result).isEqualTo(1);
+  }
+  
+  @Test
+  public void whenDeletingNumber_thenReturnDeleted() {
+    int result = mobileSubscriberService.deleteByNumber(MOBILE_NUMBER_1);
+    
+    assertThat(result).isEqualTo(1);
   }
 }
