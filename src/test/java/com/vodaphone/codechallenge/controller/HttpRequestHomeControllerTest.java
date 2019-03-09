@@ -27,6 +27,8 @@ import com.vodaphone.codechallenge.service.MobileSubscriberService;
 @WebMvcTest(HomeController.class)
 public class HttpRequestHomeControllerTest {
   
+  private static final String MOBILE_NUMBER = "35699123456";
+
   @Autowired
   private MockMvc mockMvc;
   
@@ -36,11 +38,19 @@ public class HttpRequestHomeControllerTest {
   @Before
   public void setUp() {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     
     List<MobileSubscriber> allMobileSubscribers = Arrays.asList(mobileSubscriber);
     
     Mockito.when(mobileSubscriberService.getAllMobileSubscribers()).thenReturn(allMobileSubscribers);
+    
+    Mockito.when(mobileSubscriberService.getMobileSubscriberByNumber(MOBILE_NUMBER)).thenReturn(mobileSubscriber);
+    
+    Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(1)).thenReturn(allMobileSubscribers);
+    
+    Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdUser(1)).thenReturn(allMobileSubscribers);
+    
+    Mockito.when(mobileSubscriberService.changeMobileSubscriberPlan(MOBILE_NUMBER)).thenReturn(1);
   }
 
   @Test
@@ -49,8 +59,34 @@ public class HttpRequestHomeControllerTest {
     mockMvc.perform(get("/api/subscribers")
         .contentType(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$[0].msisdn", is("35699123456")));
+      .andExpect(jsonPath("$[0].msisdn", is(MOBILE_NUMBER)));
     
   }
 
+  @Test
+  public void givenMobileSubscribers_whenFindByNumber_thenReturnJsonObject() throws Exception {
+    
+    mockMvc.perform(get("/api/subscribers/35699123456")
+        .contentType(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.msisdn", is(MOBILE_NUMBER)));
+  }
+  
+  @Test
+  public void givenMobileSubscribers_whenFindByCustomerIdOwner_thenReturnJsonArray() throws Exception {
+    
+    mockMvc.perform(get("/api/subscribers/owner/1")
+        .contentType(MediaType.APPLICATION_JSON))
+     .andExpect(status().isOk())
+     .andExpect(jsonPath("$[0].msisdn", is(MOBILE_NUMBER)));
+  }
+  
+  @Test
+  public void givenMobileSubscribers_whenFindByCustomerIdUser_thenReturnJsonArray() throws Exception {
+    
+    mockMvc.perform(get("/api/subscribers/user/1")
+        .contentType(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$[0].msisdn", is(MOBILE_NUMBER)));
+  }
 }
