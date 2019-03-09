@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +20,8 @@ import com.vodaphone.codechallenge.model.ServiceType;
 @DataJpaTest
 public class MobileSubscriberRepositoryTest {
 
+  private static final String VALID_MOBILE_NUMBER = "35699123456";
+
   @Autowired
   private TestEntityManager entityManager;
   
@@ -28,7 +31,7 @@ public class MobileSubscriberRepositoryTest {
   @Test
   public void whenFindAll_thenReturnMobileSubscriberList() {
 
-    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     entityManager.persist(mobileSubscriber);
     entityManager.flush();
     
@@ -40,20 +43,20 @@ public class MobileSubscriberRepositoryTest {
   @Test
   public void whenFindByNumber_thenReturnMobileSubscriber() {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     entityManager.persist(mobileSubscriber);
     entityManager.flush();
     
-    MobileSubscriber found = mobileSubscriberRepository.findByMsisdn("35699123456");
+    Optional<MobileSubscriber> found = mobileSubscriberRepository.findByMsisdn(VALID_MOBILE_NUMBER);
     
-    assertThat(found.getMsisdn()).isEqualTo(found.getMsisdn());
+    assertThat(found.get().getMsisdn()).isEqualTo(found.get().getMsisdn());
   }
   
   @Test
   public void whenFindByCustomerIdOwner_thenReturnMobileSubscriberList() {
     
     List<MobileSubscriber> list = new ArrayList<MobileSubscriber>(2);
-    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     list.add(mobileSubscriber);
     mobileSubscriber = new MobileSubscriber("35699123457", 2, 1, ServiceType.MOBILE_PREPAID);
     list.add(mobileSubscriber);
@@ -73,7 +76,7 @@ public class MobileSubscriberRepositoryTest {
   public void whenFindByCustomerIdUser_thenReturnMobileSubscriberList() {
     
     List<MobileSubscriber> list = new ArrayList<MobileSubscriber>(2);
-    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     list.add(mobileSubscriber);
     mobileSubscriber = new MobileSubscriber("35699123457", 1, 2, ServiceType.MOBILE_PREPAID);
     list.add(mobileSubscriber);
@@ -92,7 +95,7 @@ public class MobileSubscriberRepositoryTest {
   @Test
   public void whenInsertingNewMobileSubscriber_thenReturnMobileSubscriber() {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     
     MobileSubscriber saved = mobileSubscriberRepository.save(mobileSubscriber);
     
@@ -102,11 +105,11 @@ public class MobileSubscriberRepositoryTest {
   @Test
   public void whenChangingMobilePlan_thenReturnMobilePlanChanged() {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     entityManager.persist(mobileSubscriber);
     entityManager.flush();
     
-    int result = mobileSubscriberRepository.setPlan("35699123456", ServiceType.MOBILE_POSTPAID);
+    int result = mobileSubscriberRepository.setPlan(VALID_MOBILE_NUMBER, ServiceType.MOBILE_POSTPAID);
     
     assertThat(result).isEqualTo(1);
   }
@@ -114,11 +117,11 @@ public class MobileSubscriberRepositoryTest {
   @Test
   public void whenDeletingMobileNumber_thenReturnMobileNumberDeleted() {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber("35699123456", 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     entityManager.persist(mobileSubscriber);
     entityManager.flush();
     
-    int result = mobileSubscriberRepository.deleteByMsisdn("35699123456");
+    int result = mobileSubscriberRepository.deleteByMsisdn(VALID_MOBILE_NUMBER);
     
     assertThat(result).isEqualTo(1);
   }
