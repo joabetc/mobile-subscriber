@@ -1,6 +1,7 @@
 package com.vodaphone.codechallenge.model.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -15,7 +16,7 @@ public interface MobileSubscriberRepository extends CrudRepository<MobileSubscri
 
   List<MobileSubscriber> findAll();
 
-  MobileSubscriber findByMsisdn(String msisdn);
+  Optional<MobileSubscriber> findByMsisdn(String msisdn);
 
   List<MobileSubscriber> findByCustomerIdOwner(Integer id);
 
