@@ -1,9 +1,11 @@
 package com.vodaphone.codechallenge.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.vodaphone.codechallenge.exceptions.MobileSubscriberNotFoundException;
 import com.vodaphone.codechallenge.model.MobileSubscriber;
 import com.vodaphone.codechallenge.model.ServiceType;
 import com.vodaphone.codechallenge.model.repository.MobileSubscriberRepository;
@@ -23,7 +26,8 @@ import com.vodaphone.codechallenge.service.impl.MobileSubscriberServiceImpl;
 @RunWith(SpringRunner.class)
 public class MobileSubscriberServiceImplIntegrationTest {
   
-  private static final String MOBILE_NUMBER_1 = "35699123456";
+  private static final String VALID_MOBILE_NUMBER = "35699123456";
+  private static final String INVALID_MOBILE_NUMBER = "35699123452";
 
   @TestConfiguration
   static class MobileSubscriberServiceImplTestConfiguration {
@@ -42,12 +46,13 @@ public class MobileSubscriberServiceImplIntegrationTest {
   
   @Before
   public void setUp() {
-    MobileSubscriber mobileSubscriber = new MobileSubscriber(MOBILE_NUMBER_1, 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    Optional<MobileSubscriber> optMobileSubscriber = Optional.of(mobileSubscriber);
     List<MobileSubscriber> mobileSubscribers = new ArrayList<>();
     mobileSubscribers.add(mobileSubscriber);
     
     Mockito.when(mobileSubscriberRepository.findByMsisdn(mobileSubscriber.getMsisdn()))
-      .thenReturn(mobileSubscriber);
+      .thenReturn(optMobileSubscriber);
     
     Mockito.when(mobileSubscriberRepository.findAll())
       .thenReturn(mobileSubscribers);
@@ -67,9 +72,17 @@ public class MobileSubscriberServiceImplIntegrationTest {
   @Test
   public void whenValidNumber_thenMobileSubscriberShouldBeFound() {
     
-    MobileSubscriber found = mobileSubscriberService.getMobileSubscriberByNumber(MOBILE_NUMBER_1);
+    MobileSubscriber found = mobileSubscriberService.getMobileSubscriberByNumber(VALID_MOBILE_NUMBER);
     
-    assertThat(found.getMsisdn()).isEqualTo(MOBILE_NUMBER_1);
+    assertThat(found.getMsisdn()).isEqualTo(VALID_MOBILE_NUMBER);
+  }
+  
+  @Test
+  public void whenInvalidNumber_thenShouldThrowNotFound() {
+    
+    assertThatExceptionOfType(MobileSubscriberNotFoundException.class).isThrownBy(() -> {
+      mobileSubscriberService.getMobileSubscriberByNumber(INVALID_MOBILE_NUMBER);
+    });
   }
   
   @Test
@@ -98,14 +111,14 @@ public class MobileSubscriberServiceImplIntegrationTest {
   
   @Test
   public void whenServicePrepaidIsChanged_thenReturnPospaid() {
-    int result = mobileSubscriberService.changeMobileSubscriberPlan(MOBILE_NUMBER_1);
+    int result = mobileSubscriberService.changeMobileSubscriberPlan(VALID_MOBILE_NUMBER);
     
     assertThat(result).isEqualTo(1);
   }
   
   @Test
   public void whenDeletingNumber_thenReturnDeleted() {
-    int result = mobileSubscriberService.deleteByNumber(MOBILE_NUMBER_1);
+    int result = mobileSubscriberService.deleteByNumber(VALID_MOBILE_NUMBER);
     
     assertThat(result).isEqualTo(1);
   }
