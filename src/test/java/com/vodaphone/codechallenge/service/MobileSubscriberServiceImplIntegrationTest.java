@@ -70,7 +70,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
   }
   
   @Test
-  public void whenValidNumber_thenMobileSubscriberShouldBeFound() {
+  public void givenValidNumber_whenFindingByNumber_thenMobileSubscriberShouldBeFound() {
     
     MobileSubscriber found = mobileSubscriberService.getMobileSubscriberByNumber(VALID_MOBILE_NUMBER);
     
@@ -78,7 +78,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
   }
   
   @Test
-  public void whenInvalidNumber_thenShouldThrowNotFound() {
+  public void givenInvalidNumber_whenFindingByNumber_thenShouldThrowNotFound() {
     
     assertThatExceptionOfType(MobileSubscriberNotFoundException.class).isThrownBy(() -> {
       mobileSubscriberService.getMobileSubscriberByNumber(INVALID_MOBILE_NUMBER);
@@ -86,7 +86,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
   }
   
   @Test
-  public void whenFindAll_thenReturnMobileSubcriberList() {
+  public void givenMobileSubscriber_whenFindingdAll_thenReturnMobileSubcriberList() {
     
     List<MobileSubscriber> listFound = mobileSubscriberService.getAllMobileSubscribers();
     
@@ -94,7 +94,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
   }
   
   @Test
-  public void whenValidCustomerIdOwner_thenReturnMobileSubscriberList() {
+  public void givenMobileSubscriber_whenFindingdValidCustomerIdOwner_thenReturnMobileSubscriberList() {
     
     List<MobileSubscriber> listFound = mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(1);
     
@@ -102,7 +102,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
   }
   
   @Test
-  public void whenValidCustomerIdUser_thenReturnMobileSubscriberList() {
+  public void givenMobileSubscriber_whenFindingdValidCustomerIdUser_thenReturnMobileSubscriberList() {
     
     List<MobileSubscriber> listFound = mobileSubscriberService.getMobileSubscriberByCustomerIdUser(1);
     
@@ -117,7 +117,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
   }
   
   @Test
-  public void whenDeletingNumber_thenReturnDeleted() {
+  public void givenMobileSubscriber_whenDeletingNumber_thenReturnDeleted() {
     int result = mobileSubscriberService.deleteByNumber(VALID_MOBILE_NUMBER);
     
     assertThat(result).isEqualTo(1);
