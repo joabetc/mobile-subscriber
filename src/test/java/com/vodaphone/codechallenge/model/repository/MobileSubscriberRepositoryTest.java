@@ -106,12 +106,12 @@ public class MobileSubscriberRepositoryTest {
   public void whenChangingMobilePlan_thenReturnMobilePlanChanged() {
     
     MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
-    entityManager.persist(mobileSubscriber);
-    entityManager.flush();
+    MobileSubscriber original = mobileSubscriberRepository.save(mobileSubscriber);
     
-    int result = mobileSubscriberRepository.setPlan(VALID_MOBILE_NUMBER, ServiceType.MOBILE_POSTPAID);
+    MobileSubscriber mobileSubscriberChanged = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_POSTPAID);
+    MobileSubscriber updated = mobileSubscriberRepository.save(mobileSubscriberChanged);
     
-    assertThat(result).isEqualTo(1);
+    assertThat(updated.getServiceType()).isNotEqualTo(original.getServiceType());
   }
   
   @Test
