@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.vodaphone.codechallenge.exceptions.MobileSubscriberNotFoundException;
 import com.vodaphone.codechallenge.model.MobileSubscriber;
 import com.vodaphone.codechallenge.model.ServiceType;
 import com.vodaphone.codechallenge.model.repository.MobileSubscriberRepository;
@@ -18,7 +19,8 @@ public class MobileSubscriberServiceImpl implements MobileSubscriberService {
 
   @Override
   public MobileSubscriber getMobileSubscriberByNumber(String mobileNumber) {
-    return mobileSubscriberRepository.findByMsisdn(mobileNumber);
+    return mobileSubscriberRepository.findByMsisdn(mobileNumber)
+        .orElseThrow(() -> new MobileSubscriberNotFoundException(mobileNumber));
   }
 
   @Override
