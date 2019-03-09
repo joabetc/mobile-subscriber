@@ -14,8 +14,10 @@ public interface MobileSubscriberService {
 
   List<MobileSubscriber> getMobileSubscriberByCustomerIdUser(int id);
 
-  int changeMobileSubscriberPlan(String mobileNumber1);
+  MobileSubscriber changeMobileSubscriberPlan(String mobileNumber1);
 
   int deleteByNumber(String mobileNumber);
+
+  MobileSubscriber createMobileSubscriber(MobileSubscriber mobileSubscriber);
 
 }

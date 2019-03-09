@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.vodaphone.codechallenge.exceptions.MobileSubscriberAlreadyExistsException;
 import com.vodaphone.codechallenge.exceptions.MobileSubscriberNotFoundException;
 import com.vodaphone.codechallenge.model.MobileSubscriber;
 import com.vodaphone.codechallenge.model.ServiceType;
@@ -55,6 +56,15 @@ public class MobileSubscriberServiceImpl implements MobileSubscriberService {
   @Override
   public int deleteByNumber(String mobileNumber) {
     return mobileSubscriberRepository.deleteByMsisdn(mobileNumber);
+  }
+
+  @Override
+  public MobileSubscriber createMobileSubscriber(MobileSubscriber mobileSubscriber) {
+    if (mobileSubscriberRepository.findByMsisdn(mobileSubscriber.getMsisdn()).isPresent()) {
+      throw new MobileSubscriberAlreadyExistsException(mobileSubscriber.getMsisdn());
+    } else {
+      return mobileSubscriberRepository.save(mobileSubscriber);
+    }
   }
 
 }
