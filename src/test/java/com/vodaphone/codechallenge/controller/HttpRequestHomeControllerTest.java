@@ -1,7 +1,11 @@
 package com.vodaphone.codechallenge.controller;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -20,6 +24,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vodaphone.codechallenge.exceptions.MobileSubscriberAlreadyExistsException;
 import com.vodaphone.codechallenge.exceptions.MobileSubscriberNotFoundException;
 import com.vodaphone.codechallenge.model.MobileSubscriber;
 import com.vodaphone.codechallenge.model.ServiceType;
@@ -31,6 +37,7 @@ public class HttpRequestHomeControllerTest {
   
   private static final String VALID_MOBILE_NUMBER = "35699123456";
   private static final String INVALID_MOBILE_NUMBER = "35699123452";
+  private static final String EXISTING_MOBILE_NUMBER = "35699123451";
 
   @Autowired
   private MockMvc mockMvc;
@@ -38,25 +45,47 @@ public class HttpRequestHomeControllerTest {
   @MockBean
   private MobileSubscriberService mobileSubscriberService;
   
+  @Autowired
+  private ObjectMapper mapper;
+  
   @Before
   public void setUp() {
     
     MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriberPlanChanged = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_POSTPAID);
+    MobileSubscriber existingMobileSubscriber = new MobileSubscriber(EXISTING_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_POSTPAID);
     
     List<MobileSubscriber> allMobileSubscribers = Arrays.asList(mobileSubscriber);
     
-    Mockito.when(mobileSubscriberService.getAllMobileSubscribers()).thenReturn(allMobileSubscribers);
+    Mockito.when(mobileSubscriberService.getAllMobileSubscribers())
+      .thenReturn(allMobileSubscribers);
     
-    Mockito.when(mobileSubscriberService.getMobileSubscriberByNumber(VALID_MOBILE_NUMBER)).thenReturn(mobileSubscriber);
+    Mockito.when(mobileSubscriberService.getMobileSubscriberByNumber(VALID_MOBILE_NUMBER))
+      .thenReturn(mobileSubscriber);
     
     Mockito.when(mobileSubscriberService.getMobileSubscriberByNumber(INVALID_MOBILE_NUMBER))
-    .thenThrow(new MobileSubscriberNotFoundException(INVALID_MOBILE_NUMBER));
+      .thenThrow(new MobileSubscriberNotFoundException(INVALID_MOBILE_NUMBER));
     
-    Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(1)).thenReturn(allMobileSubscribers);
+    Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(1))
+      .thenReturn(allMobileSubscribers);
     
-    Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdUser(1)).thenReturn(allMobileSubscribers);
+    Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdUser(1))
+      .thenReturn(allMobileSubscribers);
     
-    Mockito.when(mobileSubscriberService.changeMobileSubscriberPlan(VALID_MOBILE_NUMBER)).thenReturn(1);
+    Mockito.when(mobileSubscriberService.changeMobileSubscriberPlan(VALID_MOBILE_NUMBER))
+      .thenReturn(mobileSubscriberPlanChanged);
+    
+    Mockito.when(mobileSubscriberService.changeMobileSubscriberPlan(INVALID_MOBILE_NUMBER))
+      .thenThrow(new MobileSubscriberNotFoundException(INVALID_MOBILE_NUMBER));
+    
+    Mockito.when(mobileSubscriberService.deleteByNumber(VALID_MOBILE_NUMBER))
+      .thenReturn(1);
+    
+    Mockito.when(mobileSubscriberService.deleteByNumber(INVALID_MOBILE_NUMBER))
+      .thenThrow(new MobileSubscriberNotFoundException(INVALID_MOBILE_NUMBER));
+    
+    Mockito.when(this.mobileSubscriberService.createMobileSubscriber(existingMobileSubscriber))
+      .thenThrow(new MobileSubscriberAlreadyExistsException(EXISTING_MOBILE_NUMBER));
   }
 
   @Test
@@ -101,6 +130,63 @@ public class HttpRequestHomeControllerTest {
     mockMvc.perform(get("/api/subscribers/user/1")
         .contentType(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$[0].msisdn", is(MOBILE_NUMBER)));
+      .andExpect(jsonPath("$[0].msisdn", is(VALID_MOBILE_NUMBER)));
+  }
+  
+  @Test
+  public void givenMobileSubscribers_whenChangePlan_thenReturnChanged() throws Exception {
+    
+    mockMvc.perform(put("/api/subscribers/" + VALID_MOBILE_NUMBER + "/plan")
+        .contentType(MediaType.APPLICATION_JSON))
+    .andExpect(status().isOk())
+    .andExpect(jsonPath("$.msisdn", is(VALID_MOBILE_NUMBER)));
+  }
+  
+  @Test
+  public void givenInvalidNumber_whenChangingPlan_thenThrowNotFound() throws Exception {
+    
+    mockMvc.perform(put("/api/subscribers/" + INVALID_MOBILE_NUMBER + "/plan")
+        .contentType(MediaType.APPLICATION_JSON))
+    .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+  }
+  
+  @Test
+  public void givenMobileSubscribers_whenDeleteValidNumber_thenReturnDeleted() throws Exception {
+    
+    mockMvc.perform(delete("/api/subscribers/" + VALID_MOBILE_NUMBER)
+        .contentType(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk());
+  }
+  
+  @Test
+  public void givenMobileSubscribers_whenDeleteValidNumber_thenThrowNotFound() throws Exception {
+    
+    mockMvc.perform(delete("/api/subscribers/" + INVALID_MOBILE_NUMBER)
+        .contentType(MediaType.APPLICATION_JSON))
+    .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
+  }
+  
+  @Test
+  public void givenNewNumber_whenInserting_thenReturnCreated() throws Exception {
+    
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    
+    mockMvc.perform(post("/api/subscribers")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(mapper.writeValueAsString(mobileSubscriber)))
+    .andDo(print())
+    .andExpect(status().is(HttpStatus.CREATED.value()));
+  }
+  
+  @Test
+  public void givenExistingNumber_whenInserting_thenThrowAlreadyExists() throws Exception {
+    
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(EXISTING_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    
+    mockMvc.perform(post("/api/subscribers")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(mapper.writeValueAsString(mobileSubscriber)))
+    .andDo(print())
+    .andExpect(status().is(HttpStatus.CONFLICT.value()));
   }
 }
