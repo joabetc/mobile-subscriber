@@ -27,6 +27,7 @@ import com.vodaphone.codechallenge.service.impl.MobileSubscriberServiceImpl;
 public class MobileSubscriberServiceImplIntegrationTest {
   
   private static final String VALID_MOBILE_NUMBER = "35699123456";
+  private static final String NEW_MOBILE_NUMBER = "35699123457";
   private static final String INVALID_MOBILE_NUMBER = "35699123452";
 
   @TestConfiguration
@@ -47,12 +48,19 @@ public class MobileSubscriberServiceImplIntegrationTest {
   @Before
   public void setUp() {
     MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriberPlanChanged = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_POSTPAID);
+    MobileSubscriber newMobileSubscriber = new MobileSubscriber(NEW_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    
     Optional<MobileSubscriber> optMobileSubscriber = Optional.of(mobileSubscriber);
+    
     List<MobileSubscriber> mobileSubscribers = new ArrayList<>();
     mobileSubscribers.add(mobileSubscriber);
     
-    Mockito.when(mobileSubscriberRepository.findByMsisdn(mobileSubscriber.getMsisdn()))
+    Mockito.when(mobileSubscriberRepository.findByMsisdn(VALID_MOBILE_NUMBER))
       .thenReturn(optMobileSubscriber);
+    
+    Mockito.when(mobileSubscriberRepository.findByMsisdn(NEW_MOBILE_NUMBER))
+      .thenReturn(Optional.empty());
     
     Mockito.when(mobileSubscriberRepository.findAll())
       .thenReturn(mobileSubscribers);
@@ -63,10 +71,16 @@ public class MobileSubscriberServiceImplIntegrationTest {
     Mockito.when(mobileSubscriberRepository.findByCustomerIdUser(mobileSubscriber.getCustomerIdUser()))
       .thenReturn(mobileSubscribers);
     
-    Mockito.when(mobileSubscriberRepository.setPlan(mobileSubscriber.getMsisdn(), mobileSubscriber.getServiceType()))
-      .thenReturn(1);
+    Mockito.when(mobileSubscriberRepository.save(mobileSubscriber))
+      .thenReturn(mobileSubscriber);
     
-    Mockito.when(mobileSubscriberRepository.deleteByMsisdn(mobileSubscriber.getMsisdn())).thenReturn(1);
+    Mockito.when(mobileSubscriberRepository.save(mobileSubscriberPlanChanged))
+      .thenReturn(mobileSubscriber);
+    
+    Mockito.when(mobileSubscriberRepository.save(newMobileSubscriber))
+      .thenReturn(newMobileSubscriber);
+    
+    Mockito.when(mobileSubscriberRepository.deleteByMsisdn(VALID_MOBILE_NUMBER)).thenReturn(1);
   }
   
   @Test
@@ -111,9 +125,9 @@ public class MobileSubscriberServiceImplIntegrationTest {
   
   @Test
   public void whenServicePrepaidIsChanged_thenReturnPospaid() {
-    int result = mobileSubscriberService.changeMobileSubscriberPlan(VALID_MOBILE_NUMBER);
+    MobileSubscriber result = mobileSubscriberService.changeMobileSubscriberPlan(VALID_MOBILE_NUMBER);
     
-    assertThat(result).isEqualTo(1);
+    assertThat(result).isNotNull();
   }
   
   @Test
@@ -121,5 +135,15 @@ public class MobileSubscriberServiceImplIntegrationTest {
     int result = mobileSubscriberService.deleteByNumber(VALID_MOBILE_NUMBER);
     
     assertThat(result).isEqualTo(1);
+  }
+  
+  @Test
+  public void givenMobileSubscriber_whenInsertingNumber_thenReturnCreated() {
+    
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(NEW_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    
+    MobileSubscriber saved = mobileSubscriberService.createMobileSubscriber(mobileSubscriber);
+    
+    assertThat(saved).isNull();
   }
 }
