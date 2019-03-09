@@ -3,12 +3,14 @@ package com.vodaphone.codechallenge.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.vodaphone.codechallenge.model.MobileSubscriber;
 import com.vodaphone.codechallenge.model.ServiceType;
 import com.vodaphone.codechallenge.model.repository.MobileSubscriberRepository;
 import com.vodaphone.codechallenge.service.MobileSubscriberService;
 
+@Service
 public class MobileSubscriberServiceImpl implements MobileSubscriberService {
 
   @Autowired
