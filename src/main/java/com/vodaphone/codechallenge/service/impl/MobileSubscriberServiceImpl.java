@@ -39,9 +39,13 @@ public class MobileSubscriberServiceImpl implements MobileSubscriberService {
   }
 
   @Override
-  public int changeMobileSubscriberPlan(String mobileNumber) {
-    MobileSubscriber mobileSubscriber = mobileSubscriberRepository.findByMsisdn(mobileNumber);
-    return mobileSubscriberRepository.setPlan(mobileNumber, getOpositeServiceType(mobileSubscriber.getServiceType()));
+  public MobileSubscriber changeMobileSubscriberPlan(String mobileNumber) {
+    return mobileSubscriberRepository.findByMsisdn(mobileNumber)
+        .map(subscriber -> {
+          subscriber.setServiceType(getOpositeServiceType(subscriber.getServiceType()));
+          return mobileSubscriberRepository.save(subscriber);
+        })
+        .orElseThrow(() -> new MobileSubscriberNotFoundException(mobileNumber));
   }
   
   private ServiceType getOpositeServiceType(ServiceType serviceType) {
