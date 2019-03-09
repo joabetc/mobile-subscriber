@@ -15,10 +15,12 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.vodaphone.codechallenge.exceptions.MobileSubscriberNotFoundException;
 import com.vodaphone.codechallenge.model.MobileSubscriber;
 import com.vodaphone.codechallenge.model.ServiceType;
 import com.vodaphone.codechallenge.service.MobileSubscriberService;
@@ -27,7 +29,8 @@ import com.vodaphone.codechallenge.service.MobileSubscriberService;
 @WebMvcTest(HomeController.class)
 public class HttpRequestHomeControllerTest {
   
-  private static final String MOBILE_NUMBER = "35699123456";
+  private static final String VALID_MOBILE_NUMBER = "35699123456";
+  private static final String INVALID_MOBILE_NUMBER = "35699123452";
 
   @Autowired
   private MockMvc mockMvc;
@@ -38,19 +41,22 @@ public class HttpRequestHomeControllerTest {
   @Before
   public void setUp() {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber(MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     
     List<MobileSubscriber> allMobileSubscribers = Arrays.asList(mobileSubscriber);
     
     Mockito.when(mobileSubscriberService.getAllMobileSubscribers()).thenReturn(allMobileSubscribers);
     
-    Mockito.when(mobileSubscriberService.getMobileSubscriberByNumber(MOBILE_NUMBER)).thenReturn(mobileSubscriber);
+    Mockito.when(mobileSubscriberService.getMobileSubscriberByNumber(VALID_MOBILE_NUMBER)).thenReturn(mobileSubscriber);
+    
+    Mockito.when(mobileSubscriberService.getMobileSubscriberByNumber(INVALID_MOBILE_NUMBER))
+    .thenThrow(new MobileSubscriberNotFoundException(INVALID_MOBILE_NUMBER));
     
     Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(1)).thenReturn(allMobileSubscribers);
     
     Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdUser(1)).thenReturn(allMobileSubscribers);
     
-    Mockito.when(mobileSubscriberService.changeMobileSubscriberPlan(MOBILE_NUMBER)).thenReturn(1);
+    Mockito.when(mobileSubscriberService.changeMobileSubscriberPlan(VALID_MOBILE_NUMBER)).thenReturn(1);
   }
 
   @Test
@@ -59,17 +65,25 @@ public class HttpRequestHomeControllerTest {
     mockMvc.perform(get("/api/subscribers")
         .contentType(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$[0].msisdn", is(MOBILE_NUMBER)));
+      .andExpect(jsonPath("$[0].msisdn", is(VALID_MOBILE_NUMBER)));
     
   }
 
   @Test
-  public void givenMobileSubscribers_whenFindByNumber_thenReturnJsonObject() throws Exception {
+  public void givenMobileSubscribers_whenFindByValideNumber_thenReturnJsonObject() throws Exception {
     
-    mockMvc.perform(get("/api/subscribers/35699123456")
+    mockMvc.perform(get("/api/subscribers/" + VALID_MOBILE_NUMBER)
         .contentType(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.msisdn", is(MOBILE_NUMBER)));
+      .andExpect(jsonPath("$.msisdn", is(VALID_MOBILE_NUMBER)));
+  }
+  
+  @Test
+  public void givenMobileSubscribers_whenFindByInvalidNumber_thenThrowNotFoundException() throws Exception {
+    
+    mockMvc.perform(get("/api/subscribers/" + INVALID_MOBILE_NUMBER)
+        .contentType(MediaType.APPLICATION_JSON))
+      .andExpect(status().is(HttpStatus.NOT_FOUND.value()));
   }
   
   @Test
@@ -78,7 +92,7 @@ public class HttpRequestHomeControllerTest {
     mockMvc.perform(get("/api/subscribers/owner/1")
         .contentType(MediaType.APPLICATION_JSON))
      .andExpect(status().isOk())
-     .andExpect(jsonPath("$[0].msisdn", is(MOBILE_NUMBER)));
+     .andExpect(jsonPath("$[0].msisdn", is(VALID_MOBILE_NUMBER)));
   }
   
   @Test
