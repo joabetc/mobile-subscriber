@@ -2,6 +2,8 @@ package com.vodaphone.codechallenge.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +24,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.Example;
-import io.swagger.annotations.ExampleProperty;
 
 @RestController
 @RequestMapping("/api")
 public class HomeController {
+  
+  private static final Logger logger = LoggerFactory.getLogger(HomeController.class);
 
   @Autowired
   private MobileSubscriberService mobileSubscriberService;
@@ -49,9 +51,15 @@ public class HomeController {
   @GetMapping("/subscribers/{msisdn}")
   public MobileSubscriber getByNumber(
       @ApiParam(value = "The mobile number in E164", example = "35699123456") @PathVariable String msisdn) {
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("msisdn - %s", msisdn));
+    }
+    
     try {
       return mobileSubscriberService.getMobileSubscriberByNumber(msisdn);
     } catch (Exception e) {
+      logger.error(e.getMessage());
       throw new ResponseStatusException(
           HttpStatus.NOT_FOUND, e.getMessage(), e);
     }
@@ -64,6 +72,11 @@ public class HomeController {
   @GetMapping("/subscribers/owner/{customerIdOwner}")
   public List<MobileSubscriber> getByCustomerIdOwner(
       @ApiParam(value = "The ID referencing the owner of this mobile number") @PathVariable Integer customerIdOwner) {
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("customerIdOwner - %d", customerIdOwner));
+    }
+    
     return mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(customerIdOwner);
   }
   
@@ -74,6 +87,11 @@ public class HomeController {
   @GetMapping("/subscribers/user/{customerIdUser}")
   public List<MobileSubscriber> getByCustomerIdUser(
       @ApiParam(value = "The ID referencing the user of this mobile number") @PathVariable Integer customerIdUser) {
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("customerIdUser - %d", customerIdUser));
+    }
+    
     return mobileSubscriberService.getMobileSubscriberByCustomerIdUser(customerIdUser);
   }
   
@@ -85,9 +103,15 @@ public class HomeController {
   @PutMapping("/subscribers/{msisdn}/plan")
   public MobileSubscriber changePlan(
       @ApiParam(value = "The mobile number in E164", example = "35699123456") @PathVariable String msisdn) {
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("msisdn - %s", msisdn));
+    }
+    
     try {
       return mobileSubscriberService.changeMobileSubscriberPlan(msisdn);
     } catch (Exception e) {
+      logger.error(e.getMessage());
       throw new ResponseStatusException(
           HttpStatus.NOT_FOUND, e.getMessage(), e);
     }
@@ -101,9 +125,15 @@ public class HomeController {
   @DeleteMapping("/subscribers/{msisdn}")
   public void deleteNumber(
       @ApiParam(value = "The mobile number in E164", example = "35699123456") @PathVariable String msisdn) {
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("msisdn - %s", msisdn));
+    }
+    
     try {
       mobileSubscriberService.deleteByNumber(msisdn);
     } catch (Exception e) {
+      logger.error(e.getMessage());
       throw new ResponseStatusException(
           HttpStatus.NOT_FOUND, e.getMessage(), e);
     }
@@ -117,10 +147,16 @@ public class HomeController {
   @PostMapping("/subscribers")
   public ResponseEntity<MobileSubscriber> createMobileSubscriber(
       @ApiParam(value = "Mobile subscriber") @RequestBody MobileSubscriber mobileSubscriber) {
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("mobileSubscriber - %s", mobileSubscriber.toString()));
+    }
+    
     try {
       MobileSubscriber mobileSubscriberSaved = mobileSubscriberService.createMobileSubscriber(mobileSubscriber);
       return new ResponseEntity<>(mobileSubscriberSaved, HttpStatus.CREATED);
     } catch (Exception e) {
+      logger.error(e.getMessage());
       throw new ResponseStatusException(
           HttpStatus.CONFLICT, e.getMessage(), e);
     }
