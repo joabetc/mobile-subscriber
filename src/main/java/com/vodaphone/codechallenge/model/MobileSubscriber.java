@@ -103,5 +103,11 @@ public class MobileSubscriber {
   public void setServiceStartDate(long serviceStartDate) {
     this.serviceStartDate = serviceStartDate;
   }
-  
+
+  @Override
+  public String toString() {
+    return "MobileSubscriber [id=" + id + ", msisdn=" + msisdn + ", customerIdOwner=" + customerIdOwner
+        + ", customerIdUser=" + customerIdUser + ", serviceType=" + serviceType + ", serviceStartDate="
+        + serviceStartDate + "]";
+  }
 }
