@@ -20,7 +20,7 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
 
   @Bean
   public Docket productApi() {
-      return new Docket(DocumentationType.SWAGGER_2)
+      return new Docket(DocumentationType.SWAGGER_2).useDefaultResponseMessages(false)
           .select()
           .apis(RequestHandlerSelectors.basePackage("com.vodaphone.codechallenge.controller"))
           .paths(PathSelectors.regex("/api.*"))
