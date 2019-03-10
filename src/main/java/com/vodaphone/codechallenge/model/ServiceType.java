@@ -1,5 +1,8 @@
 package com.vodaphone.codechallenge.model;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel
 public enum ServiceType {
 
   MOBILE_PREPAID, MOBILE_POSTPAID;
