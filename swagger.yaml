@@ -1,0 +1,225 @@
+openapi: 3.0.1
+info:
+  title: 'Vodafone Malta Code Challenge '
+  description: REST Web-Service responsible of maintaining a database of mobile numbers,
+    that are assigned to clients, along with some related information
+  contact:
+    name: Joabe Costa
+    url: https://www.linkedin.com/in/joabecosta/en
+    email: joabetc@hotmail.com
+  license:
+    name: Apache License Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0"
+  version: "1.0"
+servers:
+- url: //localhost:8080/mobile-subscriber
+tags:
+- name: home-controller
+  description: Home Controller
+paths:
+  /api/subscribers:
+    get:
+      tags:
+      - home-controller
+      summary: Return all mobile numbers from the database
+      operationId: getAll
+      responses:
+        200:
+          description: Success
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobileSubscriber'
+      deprecated: false
+    post:
+      tags:
+      - home-controller
+      summary: Add a mobile number to the database
+      operationId: createMobileSubscriber
+      requestBody:
+        description: Mobile subscriber
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MobileSubscriber'
+        required: false
+      responses:
+        200:
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MobileSubscriber'
+        201:
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MobileSubscriber'
+        409:
+          description: Conflict
+          content: {}
+      deprecated: false
+  /api/subscribers/owner/{customerIdOwner}:
+    get:
+      tags:
+      - home-controller
+      summary: Return all mobile numbers that match the onwer id criteria
+      operationId: getByCustomerIdOwner
+      parameters:
+      - name: customerIdOwner
+        in: path
+        description: The ID referencing the owner of this mobile number
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: Success
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobileSubscriber'
+      deprecated: false
+  /api/subscribers/user/{customerIdUser}:
+    get:
+      tags:
+      - home-controller
+      summary: Return all mobile numbers that match the user id criteria
+      operationId: getByCustomerIdUser
+      parameters:
+      - name: customerIdUser
+        in: path
+        description: The ID referencing the user of this mobile number
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: Success
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MobileSubscriber'
+      deprecated: false
+  /api/subscribers/{msisdn}:
+    get:
+      tags:
+      - home-controller
+      summary: Return all mobile numbers that match the search number criteria
+      operationId: getByNumber
+      parameters:
+      - name: msisdn
+        in: path
+        description: The mobile number in E164
+        required: true
+        schema:
+          type: string
+        example: "35699123456"
+      responses:
+        200:
+          description: Success
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MobileSubscriber'
+        404:
+          description: Not Found
+          content: {}
+      deprecated: false
+    delete:
+      tags:
+      - home-controller
+      summary: Delete a mobile number from the database
+      operationId: deleteNumber
+      parameters:
+      - name: msisdn
+        in: path
+        description: The mobile number in E164
+        required: true
+        schema:
+          type: string
+        example: "35699123456"
+      responses:
+        200:
+          description: Success
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MobileSubscriber'
+        404:
+          description: Not Found
+          content: {}
+      deprecated: false
+  /api/subscribers/{msisdn}/plan:
+    put:
+      tags:
+      - home-controller
+      summary: Change a mobile number plan from prepaid to postpaid or vice versa
+      operationId: changePlan
+      parameters:
+      - name: msisdn
+        in: path
+        description: The mobile number in E164
+        required: true
+        schema:
+          type: string
+        example: "35699123456"
+      responses:
+        200:
+          description: Success
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/MobileSubscriber'
+        404:
+          description: Not Found
+          content: {}
+      deprecated: false
+components:
+  schemas:
+    MobileSubscriber:
+      title: MobileSubscriber
+      required:
+      - customerIdOwner
+      - customerIdUser
+      - msisdn
+      - serviceStartDate
+      type: object
+      properties:
+        customerIdOwner:
+          type: integer
+          description: The ID referencing the owner of the mobile number<br>
+          format: int32
+        customerIdUser:
+          type: integer
+          description: The ID referencing the user of the mobile number<br>
+          format: int32
+        id:
+          type: integer
+          description: Unique Entity ID<br>
+          format: int32
+        msisdn:
+          type: string
+          description: The mobile number<br>
+          example: "35699123456"
+        serviceStartDate:
+          type: integer
+          description: The time this mobile number was created, encoded in Unix Epoch
+            in Milliseconds
+          format: int64
+        serviceType:
+          type: string
+          description: An enum defining the type of service<br>
+          enum:
+          - MOBILE_PREPAID
+          - MOBILE_POSTPAID
+      description: Mobile Subscriber<br>
