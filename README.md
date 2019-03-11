@@ -29,3 +29,7 @@ A REST Web-Service responsible of maintaining a database of mobile numbers, that
 - Assign different owners/users of a service
   - `PUT` - `http://localhost:8080/mobile-subscriber/api/subscribers/pre-paid`
   - `PUT` - `http://localhost:8080/mobile-subscriber/api/subscribers/post-paid`
+
+## Swagger API Documentation
+
+[API Documentation](https://raw.githubusercontent.com/joabetc/mobile-subscriber/master/swagger.yaml)
