@@ -27,8 +27,7 @@ A REST Web-Service responsible of maintaining a database of mobile numbers, that
 - Delete a mobile number from the database
   - `DELETE` - `http://localhost:8080/mobile-subscriber/api/subscribers/{msisdn}`
 - Assign different owners/users of a service
-  - `PUT` - `http://localhost:8080/mobile-subscriber/api/subscribers/pre-paid`
-  - `PUT` - `http://localhost:8080/mobile-subscriber/api/subscribers/post-paid`
+  - `PUT` - `http://localhost:8080/mobile-subscriber/api/plan`
 
 ## Swagger API Documentation
 
