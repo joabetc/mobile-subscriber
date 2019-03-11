@@ -31,7 +31,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MobileSubscriber'
+                  $ref: '#/components/schemas/MobileSubscriberDTO'
       deprecated: false
     post:
       tags:
@@ -43,7 +43,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MobileSubscriber'
+              $ref: '#/components/schemas/MobileSubscriberDTO'
         required: false
       responses:
         200:
@@ -51,13 +51,13 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/MobileSubscriber'
+                $ref: '#/components/schemas/MobileSubscriberDTO'
         201:
           description: Created
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/MobileSubscriber'
+                $ref: '#/components/schemas/MobileSubscriberDTO'
         409:
           description: Conflict
           content: {}
@@ -84,7 +84,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MobileSubscriber'
+                  $ref: '#/components/schemas/MobileSubscriberDTO'
       deprecated: false
   /api/subscribers/user/{customerIdUser}:
     get:
@@ -108,7 +108,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/MobileSubscriber'
+                  $ref: '#/components/schemas/MobileSubscriberDTO'
       deprecated: false
   /api/subscribers/{msisdn}:
     get:
@@ -130,7 +130,7 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/MobileSubscriber'
+                $ref: '#/components/schemas/MobileSubscriberDTO'
         404:
           description: Not Found
           content: {}
@@ -151,10 +151,7 @@ paths:
       responses:
         200:
           description: Success
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/MobileSubscriber'
+          content: {}
         404:
           description: Not Found
           content: {}
@@ -179,15 +176,15 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/MobileSubscriber'
+                $ref: '#/components/schemas/MobileSubscriberDTO'
         404:
           description: Not Found
           content: {}
       deprecated: false
 components:
   schemas:
-    MobileSubscriber:
-      title: MobileSubscriber
+    MobileSubscriberDTO:
+      title: MobileSubscriberDTO
       required:
       - customerIdOwner
       - customerIdUser
