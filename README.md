@@ -32,4 +32,4 @@ A REST Web-Service responsible of maintaining a database of mobile numbers, that
 
 ## Swagger API Documentation
 
-[API Documentation](https://raw.githubusercontent.com/joabetc/mobile-subscriber/master/swagger.yaml)
+[API Documentation](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/joabetc/mobile-subscriber/master/swagger.yaml)
