@@ -25,9 +25,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vodaphone.codechallenge.dto.MobileSubscriberDTO;
 import com.vodaphone.codechallenge.exceptions.MobileSubscriberAlreadyExistsException;
 import com.vodaphone.codechallenge.exceptions.MobileSubscriberNotFoundException;
-import com.vodaphone.codechallenge.model.MobileSubscriber;
 import com.vodaphone.codechallenge.model.ServiceType;
 import com.vodaphone.codechallenge.service.MobileSubscriberService;
 
@@ -51,29 +51,30 @@ public class HttpRequestHomeControllerTest {
   @Before
   public void setUp() {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
-    MobileSubscriber mobileSubscriberPlanChanged = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_POSTPAID);
-    MobileSubscriber existingMobileSubscriber = new MobileSubscriber(EXISTING_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_POSTPAID);
+    MobileSubscriberDTO mobileSubscriberDTO = new MobileSubscriberDTO(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     
-    List<MobileSubscriber> allMobileSubscribers = Arrays.asList(mobileSubscriber);
+    MobileSubscriberDTO mobileSubscriberPlanChangedDTO = new MobileSubscriberDTO(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_POSTPAID);
+    MobileSubscriberDTO existingMobileSubscriberDTO = new MobileSubscriberDTO(EXISTING_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_POSTPAID);
+    
+    List<MobileSubscriberDTO> allMobileSubscribersDTO = Arrays.asList(mobileSubscriberDTO);
     
     Mockito.when(mobileSubscriberService.getAllMobileSubscribers())
-      .thenReturn(allMobileSubscribers);
+      .thenReturn(allMobileSubscribersDTO);
     
     Mockito.when(mobileSubscriberService.getMobileSubscriberByNumber(VALID_MOBILE_NUMBER))
-      .thenReturn(mobileSubscriber);
+      .thenReturn(mobileSubscriberDTO);
     
     Mockito.when(mobileSubscriberService.getMobileSubscriberByNumber(INVALID_MOBILE_NUMBER))
       .thenThrow(new MobileSubscriberNotFoundException(INVALID_MOBILE_NUMBER));
     
     Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(1))
-      .thenReturn(allMobileSubscribers);
+      .thenReturn(allMobileSubscribersDTO);
     
     Mockito.when(mobileSubscriberService.getMobileSubscriberByCustomerIdUser(1))
-      .thenReturn(allMobileSubscribers);
+      .thenReturn(allMobileSubscribersDTO);
     
     Mockito.when(mobileSubscriberService.changeMobileSubscriberPlan(VALID_MOBILE_NUMBER))
-      .thenReturn(mobileSubscriberPlanChanged);
+      .thenReturn(mobileSubscriberPlanChangedDTO);
     
     Mockito.when(mobileSubscriberService.changeMobileSubscriberPlan(INVALID_MOBILE_NUMBER))
       .thenThrow(new MobileSubscriberNotFoundException(INVALID_MOBILE_NUMBER));
@@ -84,7 +85,7 @@ public class HttpRequestHomeControllerTest {
     Mockito.when(mobileSubscriberService.deleteByNumber(INVALID_MOBILE_NUMBER))
       .thenThrow(new MobileSubscriberNotFoundException(INVALID_MOBILE_NUMBER));
     
-    Mockito.when(this.mobileSubscriberService.createMobileSubscriber(existingMobileSubscriber))
+    Mockito.when(mobileSubscriberService.createMobileSubscriber(existingMobileSubscriberDTO))
       .thenThrow(new MobileSubscriberAlreadyExistsException(EXISTING_MOBILE_NUMBER));
   }
 
@@ -169,7 +170,7 @@ public class HttpRequestHomeControllerTest {
   @Test
   public void givenNewNumber_whenInserting_thenReturnCreated() throws Exception {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriberDTO mobileSubscriber = new MobileSubscriberDTO(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     
     mockMvc.perform(post("/api/subscribers")
         .contentType(MediaType.APPLICATION_JSON)
@@ -181,7 +182,7 @@ public class HttpRequestHomeControllerTest {
   @Test
   public void givenExistingNumber_whenInserting_thenThrowAlreadyExists() throws Exception {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber(EXISTING_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriberDTO mobileSubscriber = new MobileSubscriberDTO(EXISTING_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     
     mockMvc.perform(post("/api/subscribers")
         .contentType(MediaType.APPLICATION_JSON)

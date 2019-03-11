@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.vodaphone.codechallenge.dto.MobileSubscriberDTO;
 import com.vodaphone.codechallenge.exceptions.MobileSubscriberNotFoundException;
 import com.vodaphone.codechallenge.model.MobileSubscriber;
 import com.vodaphone.codechallenge.model.ServiceType;
@@ -50,6 +51,8 @@ public class MobileSubscriberServiceImplIntegrationTest {
     MobileSubscriber mobileSubscriber = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     MobileSubscriber mobileSubscriberPlanChanged = new MobileSubscriber(VALID_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_POSTPAID);
     MobileSubscriber newMobileSubscriber = new MobileSubscriber(NEW_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriber mobileSubscriberCreated = new MobileSubscriber(NEW_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    mobileSubscriberCreated.setId(1);
     
     Optional<MobileSubscriber> optMobileSubscriber = Optional.of(mobileSubscriber);
     
@@ -78,7 +81,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
       .thenReturn(mobileSubscriber);
     
     Mockito.when(mobileSubscriberRepository.save(newMobileSubscriber))
-      .thenReturn(newMobileSubscriber);
+      .thenReturn(mobileSubscriberCreated);
     
     Mockito.when(mobileSubscriberRepository.deleteByMsisdn(VALID_MOBILE_NUMBER)).thenReturn(1);
   }
@@ -86,7 +89,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
   @Test
   public void givenValidNumber_whenFindingByNumber_thenMobileSubscriberShouldBeFound() {
     
-    MobileSubscriber found = mobileSubscriberService.getMobileSubscriberByNumber(VALID_MOBILE_NUMBER);
+    MobileSubscriberDTO found = mobileSubscriberService.getMobileSubscriberByNumber(VALID_MOBILE_NUMBER);
     
     assertThat(found.getMsisdn()).isEqualTo(VALID_MOBILE_NUMBER);
   }
@@ -102,7 +105,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
   @Test
   public void givenMobileSubscriber_whenFindingdAll_thenReturnMobileSubcriberList() {
     
-    List<MobileSubscriber> listFound = mobileSubscriberService.getAllMobileSubscribers();
+    List<MobileSubscriberDTO> listFound = mobileSubscriberService.getAllMobileSubscribers();
     
     assertThat(listFound).isNotEmpty().size().isEqualTo(1);
   }
@@ -110,7 +113,7 @@ public class MobileSubscriberServiceImplIntegrationTest {
   @Test
   public void givenMobileSubscriber_whenFindingdValidCustomerIdOwner_thenReturnMobileSubscriberList() {
     
-    List<MobileSubscriber> listFound = mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(1);
+    List<MobileSubscriberDTO> listFound = mobileSubscriberService.getMobileSubscriberByCustomerIdOwner(1);
     
     assertThat(listFound).isNotEmpty().size().isEqualTo(1);
   }
@@ -118,14 +121,14 @@ public class MobileSubscriberServiceImplIntegrationTest {
   @Test
   public void givenMobileSubscriber_whenFindingdValidCustomerIdUser_thenReturnMobileSubscriberList() {
     
-    List<MobileSubscriber> listFound = mobileSubscriberService.getMobileSubscriberByCustomerIdUser(1);
+    List<MobileSubscriberDTO> listFound = mobileSubscriberService.getMobileSubscriberByCustomerIdUser(1);
     
     assertThat(listFound).isNotEmpty().size().isEqualTo(1);
   }
   
   @Test
   public void whenServicePrepaidIsChanged_thenReturnPospaid() {
-    MobileSubscriber result = mobileSubscriberService.changeMobileSubscriberPlan(VALID_MOBILE_NUMBER);
+    MobileSubscriberDTO result = mobileSubscriberService.changeMobileSubscriberPlan(VALID_MOBILE_NUMBER);
     
     assertThat(result).isNotNull();
   }
@@ -140,10 +143,10 @@ public class MobileSubscriberServiceImplIntegrationTest {
   @Test
   public void givenMobileSubscriber_whenInsertingNumber_thenReturnCreated() {
     
-    MobileSubscriber mobileSubscriber = new MobileSubscriber(NEW_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
+    MobileSubscriberDTO mobileSubscriberDTO = new MobileSubscriberDTO(NEW_MOBILE_NUMBER, 1, 1, ServiceType.MOBILE_PREPAID);
     
-    MobileSubscriber saved = mobileSubscriberService.createMobileSubscriber(mobileSubscriber);
+    MobileSubscriberDTO saved = mobileSubscriberService.createMobileSubscriber(mobileSubscriberDTO);
     
-    assertThat(saved).isNull();
+    assertThat(saved).isNotNull();
   }
 }

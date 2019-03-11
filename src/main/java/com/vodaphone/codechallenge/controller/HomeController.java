@@ -14,10 +14,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.vodaphone.codechallenge.model.MobileSubscriber;
+import com.vodaphone.codechallenge.dto.MobileSubscriberDTO;
+import com.vodaphone.codechallenge.dto.PlanDTO;
 import com.vodaphone.codechallenge.service.MobileSubscriberService;
 
 import io.swagger.annotations.ApiOperation;
@@ -36,20 +38,20 @@ public class HomeController {
   
   @ApiOperation(value = "Return all mobile numbers from the database", nickname = "getAll")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success", response = MobileSubscriber.class, responseContainer = "List")
+      @ApiResponse(code = 200, message = "Success", response = MobileSubscriberDTO.class, responseContainer = "List")
   })
   @GetMapping("/subscribers")
-  public List<MobileSubscriber> getAll() {
+  public List<MobileSubscriberDTO> getAll() {
     return mobileSubscriberService.getAllMobileSubscribers();
   }
   
   @ApiOperation(value = "Return all mobile numbers that match the search number criteria", nickname = "getByNumber")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success", response = MobileSubscriber.class),
+      @ApiResponse(code = 200, message = "Success", response = MobileSubscriberDTO.class),
       @ApiResponse(code = 404, message = "Not Found")
   })
   @GetMapping("/subscribers/{msisdn}")
-  public MobileSubscriber getByNumber(
+  public MobileSubscriberDTO getByNumber(
       @ApiParam(value = "The mobile number in E164", example = "35699123456") @PathVariable String msisdn) {
     
     if (logger.isDebugEnabled()) {
@@ -67,10 +69,10 @@ public class HomeController {
 
   @ApiOperation(value = "Return all mobile numbers that match the onwer id criteria", nickname = "getByCustomerIdOwner")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success", response = MobileSubscriber.class, responseContainer = "List")
+      @ApiResponse(code = 200, message = "Success", response = MobileSubscriberDTO.class, responseContainer = "List")
   })
   @GetMapping("/subscribers/owner/{customerIdOwner}")
-  public List<MobileSubscriber> getByCustomerIdOwner(
+  public List<MobileSubscriberDTO> getByCustomerIdOwner(
       @ApiParam(value = "The ID referencing the owner of this mobile number") @PathVariable Integer customerIdOwner) {
     
     if (logger.isDebugEnabled()) {
@@ -82,10 +84,10 @@ public class HomeController {
   
   @ApiOperation(value = "Return all mobile numbers that match the user id criteria", nickname = "getByCustomerIdUser")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success", response = MobileSubscriber.class, responseContainer = "List")
+      @ApiResponse(code = 200, message = "Success", response = MobileSubscriberDTO.class, responseContainer = "List")
   })
   @GetMapping("/subscribers/user/{customerIdUser}")
-  public List<MobileSubscriber> getByCustomerIdUser(
+  public List<MobileSubscriberDTO> getByCustomerIdUser(
       @ApiParam(value = "The ID referencing the user of this mobile number") @PathVariable Integer customerIdUser) {
     
     if (logger.isDebugEnabled()) {
@@ -97,11 +99,11 @@ public class HomeController {
   
   @ApiOperation(value = "Change a mobile number plan from prepaid to postpaid or vice versa", nickname = "changePlan")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success", response = MobileSubscriber.class),
+      @ApiResponse(code = 200, message = "Success", response = MobileSubscriberDTO.class),
       @ApiResponse(code = 404, message = "Not Found")
   })
   @PutMapping("/subscribers/{msisdn}/plan")
-  public MobileSubscriber changePlan(
+  public MobileSubscriberDTO changePlan(
       @ApiParam(value = "The mobile number in E164", example = "35699123456") @PathVariable String msisdn) {
     
     if (logger.isDebugEnabled()) {
@@ -119,7 +121,7 @@ public class HomeController {
   
   @ApiOperation(value = "Delete a mobile number from the database", nickname = "deleteNumber")
   @ApiResponses(value = {
-      @ApiResponse(code = 200, message = "Success", response = MobileSubscriber.class),
+      @ApiResponse(code = 200, message = "Success"),
       @ApiResponse(code = 404, message = "Not Found")
   })
   @DeleteMapping("/subscribers/{msisdn}")
@@ -141,24 +143,39 @@ public class HomeController {
   
   @ApiOperation(value = "Add a mobile number to the database", nickname = "createMobileSubscriber")
   @ApiResponses(value = {
-      @ApiResponse(code = 201, message = "Created", response = MobileSubscriber.class, responseContainer = "ResponseEntity"),
+      @ApiResponse(code = 201, message = "Created", response = MobileSubscriberDTO.class, responseContainer = "ResponseEntity"),
       @ApiResponse(code = 409, message = "Conflict")
   })
   @PostMapping("/subscribers")
-  public ResponseEntity<MobileSubscriber> createMobileSubscriber(
-      @ApiParam(value = "Mobile subscriber") @RequestBody MobileSubscriber mobileSubscriber) {
+  public ResponseEntity<MobileSubscriberDTO> createMobileSubscriber(
+      @ApiParam(value = "Mobile subscriber") @RequestBody MobileSubscriberDTO mobileSubscriber) {
     
     if (logger.isDebugEnabled()) {
       logger.debug(String.format("mobileSubscriber - %s", mobileSubscriber.toString()));
     }
     
     try {
-      MobileSubscriber mobileSubscriberSaved = mobileSubscriberService.createMobileSubscriber(mobileSubscriber);
+      MobileSubscriberDTO mobileSubscriberSaved = mobileSubscriberService.createMobileSubscriber(mobileSubscriber);
       return new ResponseEntity<>(mobileSubscriberSaved, HttpStatus.CREATED);
     } catch (Exception e) {
       logger.error(e.getMessage());
       throw new ResponseStatusException(
           HttpStatus.CONFLICT, e.getMessage(), e);
     }
+  }
+  
+  @ApiOperation(value = "Assign different owners/users of a service", nickname = "changingPlanOwnerOrUser")
+  @ApiResponses(value = {
+      @ApiResponse(code = 204, message = "No Content")
+  })
+  @PutMapping("/plan")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void changingPlanOwnerOrUser(@RequestBody PlanDTO plan) {
+    
+    if (logger.isDebugEnabled()) {
+      logger.debug(String.format("plan - %s", plan.toString()));
+    }
+    
+    mobileSubscriberService.changePlanOwnerOrId(plan);
   }
 }

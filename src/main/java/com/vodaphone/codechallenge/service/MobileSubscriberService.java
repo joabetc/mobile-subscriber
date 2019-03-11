@@ -2,22 +2,25 @@ package com.vodaphone.codechallenge.service;
 
 import java.util.List;
 
-import com.vodaphone.codechallenge.model.MobileSubscriber;
+import com.vodaphone.codechallenge.dto.MobileSubscriberDTO;
+import com.vodaphone.codechallenge.dto.PlanDTO;
 
 public interface MobileSubscriberService {
   
-  MobileSubscriber getMobileSubscriberByNumber(String mobileNumber);
+  MobileSubscriberDTO getMobileSubscriberByNumber(String mobileNumber);
 
-  List<MobileSubscriber> getAllMobileSubscribers();
+  List<MobileSubscriberDTO> getAllMobileSubscribers();
 
-  List<MobileSubscriber> getMobileSubscriberByCustomerIdOwner(int id);
+  List<MobileSubscriberDTO> getMobileSubscriberByCustomerIdOwner(int id);
 
-  List<MobileSubscriber> getMobileSubscriberByCustomerIdUser(int id);
+  List<MobileSubscriberDTO> getMobileSubscriberByCustomerIdUser(int id);
 
-  MobileSubscriber changeMobileSubscriberPlan(String mobileNumber1);
+  MobileSubscriberDTO changeMobileSubscriberPlan(String mobileNumber1);
 
   int deleteByNumber(String mobileNumber);
 
-  MobileSubscriber createMobileSubscriber(MobileSubscriber mobileSubscriber);
+  MobileSubscriberDTO createMobileSubscriber(MobileSubscriberDTO mobileSubscriber);
+
+  void changePlanOwnerOrId(PlanDTO plan);
 
 }
